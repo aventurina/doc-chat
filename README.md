@@ -4,6 +4,8 @@ A reading companion for your own documents. Upload a file and ask questions abou
 
 ![Marginalia screenshot](docs/screenshot-marginalia.png)
 
+**Live site:** [doc-chat-fdzl.onrender.com](https://doc-chat-fdzl.onrender.com)
+
 ## Features
 
 - Upload a `.txt`, `.md`, or `.pdf` file (up to 5MB)

@@ -6,7 +6,10 @@ let embedderPromise = null;
 
 function getEmbedder() {
     if (!embedderPromise) {
-        embedderPromise = pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+        // 8-bit quantization cuts model size and runtime memory substantially,
+        // with negligible loss in embedding quality for retrieval purposes.
+        // Matters on memory-capped hosting (e.g. Render's free tier, 512MB).
+        embedderPromise = pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", { dtype: "q8" });
     }
     return embedderPromise;
 }
