@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: doc-chat
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run server
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DAILY_REQUEST_LIMIT
+        value: "50"
