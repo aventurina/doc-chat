@@ -1,0 +1,33 @@
+{
+  "name": "doc-chat",
+  "version": "1.0.0",
+  "description": "Chat with your own documents using retrieval-augmented generation.",
+  "type": "module",
+  "source": "index.html",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "client": "parcel --open",
+    "server": "node server/index.js",
+    "start": "concurrently -n server,client -c blue,green \"npm run server\" \"npm run client\"",
+    "build": "parcel build",
+    "test": "node --test server/*.test.js"
+  },
+  "author": "Aimee Venturina",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "@huggingface/transformers": "^4.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "multer": "^2.0.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "parcel": "^2.15.0",
+    "supertest": "^7.0.0"
+  }
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Marginalia — upload a document and ask questions about it, answered with retrieval-augmented generation and cited sources.">
+    <title>Marginalia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <header class="site-header">
+        <div class="shell header-inner">
+            <div class="brand">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 5.5C4 4.67 4.67 4 5.5 4H11V20H5.5C4.67 20 4 19.33 4 18.5V5.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                    <path d="M20 5.5C20 4.67 19.33 4 18.5 4H13V20H18.5C19.33 20 20 19.33 20 18.5V5.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                    <path d="M6.5 7.5H9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <path d="M6.5 10H9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <span class="brand-name">Marginalia</span>
+            </div>
+            <p class="brand-tagline">a reading companion for your own documents</p>
+        </div>
+    </header>
+
+    <main class="shell">
+        <section class="panel upload-panel" aria-label="Upload a document">
+            <div id="upload-idle" class="upload-dropzone">
+                <p class="upload-title">Begin with a document</p>
+                <p class="upload-hint">.txt, .md, or .pdf &middot; up to 5MB</p>
+                <label class="btn btn-primary">
+                    Choose a file
+                    <input type="file" id="file-input" accept=".txt,.md,.pdf" hidden>
+                </label>
+            </div>
+
+            <div id="upload-active" class="upload-active" hidden>
+                <div class="doc-chip">
+                    <span id="doc-name" class="doc-name"></span>
+                    <span id="doc-meta" class="doc-meta"></span>
+                </div>
+                <button id="change-doc-btn" class="btn btn-ghost" type="button">Change document</button>
+            </div>
+
+            <p id="upload-status" class="upload-status" aria-live="polite"></p>
+        </section>
+
+        <section id="chat-section" class="panel chat-panel" aria-label="Chat" hidden>
+            <div id="chat-log" class="chat-log" aria-live="polite"></div>
+
+            <form id="chat-form" class="chat-form">
+                <input
+                    type="text"
+                    id="question-input"
+                    class="chat-input"
+                    placeholder="what would you like to know?"
+                    autocomplete="off"
+                />
+                <button type="submit" class="btn btn-primary">Ask</button>
+            </form>
+
+            <p id="usage-indicator" class="usage-indicator"></p>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="shell">
+            <p>Built by Aimee Venturina &middot; local embeddings + <a href="https://www.anthropic.com/claude" target="_blank" rel="noopener noreferrer">Claude</a></p>
+        </div>
+    </footer>
+
+    <script src="js/scripts.js" type="module"></script>
+</body>
+</html>
