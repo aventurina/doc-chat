@@ -6,6 +6,8 @@ A reading companion for your own documents. Upload a file, ask questions about i
 
 **Live site:** [doc-chat-fdzl.onrender.com](https://doc-chat-fdzl.onrender.com)
 
+**Tutorial:** [Building a RAG Chatbot with Local Embeddings and the Claude API](https://ai-with-aimee.vercel.app/blog/rag-tutorial)
+
 ## Features
 
 - Upload a `.txt`, `.md`, or `.pdf` file (up to 5MB)
