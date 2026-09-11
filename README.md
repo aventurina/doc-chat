@@ -14,6 +14,10 @@ A reading companion for your own documents. Upload a file and ask questions abou
 - Every answer shows which source excerpts it was grounded in
 - A daily request limit protects against a public demo running up a real API bill
 
+## RAG, in plain terms
+
+If you're not familiar with retrieval-augmented generation (RAG), here's the short version: instead of asking Claude to answer a question from memory, this app first finds the exact paragraphs in your uploaded document that are relevant to your question, then hands Claude only those paragraphs along with your question. Claude can then only answer from what's actually in front of it, not from a guess, which is why every answer can point back to the specific source excerpt it came from.
+
 ## Tech stack
 
 **Frontend**
@@ -27,6 +31,34 @@ A reading companion for your own documents. Upload a file and ask questions abou
 - [`@anthropic-ai/sdk`](https://www.npmjs.com/package/@anthropic-ai/sdk) (Claude) for the actual answer generation — the only step that costs money per call
 - `pdf-parse` for PDF text extraction
 
+## Architecture
+
+The app has two main flows, both handled by the same Express backend. Indexing happens when a document is uploaded: the text is chunked, embedded with a small local model, and stored in memory, all for free, with no external API call. Querying is where Claude comes in: the question is embedded locally too, matched against the stored chunks, and only the most relevant excerpts are sent to Claude to generate the final answer. That split keeps every step free except the one that actually needs a strong language model. Both flows are shown below.
+
+
+```mermaid
+flowchart TD
+    subgraph Indexing["Indexing a document"]
+        A[User uploads .txt, .md, or .pdf] --> B[Express backend receives file]
+        B --> C[Extract text - pdf-parse for PDFs]
+        C --> D[Chunk text into overlapping segments]
+        D --> E[Generate embeddings locally - HuggingFace all-MiniLM-L6-v2]
+        E --> F[(In-memory vector store)]
+    end
+
+    subgraph Querying["Answering a question"]
+        G[User asks a question] --> H[Express backend receives query]
+        H --> I[Embed the question locally]
+        I --> J[Cosine similarity search against vector store]
+        F --> J
+        J --> K[Most relevant chunks retrieved]
+        K --> L[Sent to Claude via Anthropic SDK - token caps + rate limiting]
+        L --> M[Answer generated with inline citations]
+        M --> N[Returned to frontend]
+    end
+```
+
+
 ## Why local embeddings?
 
 Embeddings and generation are different problems. This app uses a small local model for embeddings (free, runs on CPU, no external call) and reserves the paid Claude API for the one step that actually needs a strong language model: generating the answer. That keeps the cost surface to a single API, and keeps the app fully testable without needing a live key (see Testing below).
@@ -37,6 +69,18 @@ Two layers:
 
 1. **Provider-level hard spending cap** — set a hard monthly limit on the API key itself in the [Anthropic console](https://console.anthropic.com/). This is the real safety net; it holds even if the app-level logic below has a bug.
 2. **App-level limits** — `max_tokens` is capped on every Claude request, and a daily request counter (`DAILY_REQUEST_LIMIT`, default 50) returns a friendly "limit reached" message instead of letting requests through unbounded.
+
+
+## Limitations and what's next
+
+This is a demo, and a few trade-offs reflect that:
+
+- Documents are stored in memory, not in a database, so they disappear when the server restarts. That's fine for trying it out, but not for anything you'd want to keep around.
+- There's no user accounts or document separation between visitors to the live demo, everyone shares the same daily request limit and the same in-memory store.
+- Retrieval is based on similarity search over the whole document. There's no re-ranking or more advanced retrieval strategy layered on top.
+
+If I kept building this, the next steps would be swapping the in-memory store for a persistent vector database, adding per-user sessions so documents don't leak between visitors, and adding a re-ranking step to improve retrieval quality on longer documents.
+
 
 ## Getting started
 
@@ -77,14 +121,14 @@ Run `npm run build` to generate `dist/`, then start the server with `npm run ser
 ## Project structure
 
 ```
-index.html              Markup and layout
-css/style.css            Light, editorial "reading room" theme
-js/scripts.js            Upload flow, chat UI, usage indicator
-server/index.js          Express app: upload, chat, usage, health routes
+index.html                Markup and layout
+css/style.css             Light, editorial "reading room" theme
+js/scripts.js             Upload flow, chat UI, usage indicator
+server/index.js           Express app: upload, chat, usage, health routes
 server/embeddings.js      Local embedding model wrapper
 server/chunk.js           Text chunking with overlap
 server/store.js           In-memory vector store + cosine similarity
 server/claude.js          Claude client wrapper (context injection, max_tokens cap)
 server/rateLimit.js       Daily request limiter
-server/*.test.js         Tests for each module, run with Node's built-in test runner
+server/*.test.js          Tests for each module, run with Node's built-in test runner
 ```
