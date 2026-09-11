@@ -1,6 +1,6 @@
 # Marginalia
 
-A reading companion for your own documents. Upload a file and ask questions about it — answers are generated with retrieval-augmented generation (RAG), grounded in the document's actual content, with source excerpts cited inline.
+A reading companion for your own documents. Upload a file, ask questions about it, and get answers grounded in what the document actually says, with the exact source excerpts cited inline, not a guess from memory. I built it to be cheap to run and safe to leave public: the embedding and retrieval side runs entirely on a small local model at no cost, and only the final answer goes through the Claude API, with hard spending limits in place.
 
 ![Marginalia screenshot](docs/screenshot-marginalia.png)
 
@@ -26,9 +26,9 @@ If you're not familiar with retrieval-augmented generation (RAG), here's the sho
 
 **Backend**
 - Node.js + Express
-- [`@huggingface/transformers`](https://huggingface.co/docs/transformers.js) — local embedding model (`all-MiniLM-L6-v2`), runs in-process with no API key or per-call cost
-- In-memory vector store with cosine similarity search (no database — documents live for the server's lifetime, which is fine for a demo)
-- [`@anthropic-ai/sdk`](https://www.npmjs.com/package/@anthropic-ai/sdk) (Claude) for the actual answer generation — the only step that costs money per call
+- [`@huggingface/transformers`](https://huggingface.co/docs/transformers.js): local embedding model (`all-MiniLM-L6-v2`), runs in-process with no API key or per-call cost
+- In-memory vector store with cosine similarity search (no database, documents live for the server's lifetime, which is fine for a demo)
+- [`@anthropic-ai/sdk`](https://www.npmjs.com/package/@anthropic-ai/sdk) (Claude) for the actual answer generation, the only step that costs money per call
 - `pdf-parse` for PDF text extraction
 
 ## Architecture
@@ -67,8 +67,8 @@ Embeddings and generation are different problems. This app uses a small local mo
 
 Two layers:
 
-1. **Provider-level hard spending cap** — set a hard monthly limit on the API key itself in the [Anthropic console](https://console.anthropic.com/). This is the real safety net; it holds even if the app-level logic below has a bug.
-2. **App-level limits** — `max_tokens` is capped on every Claude request, and a daily request counter (`DAILY_REQUEST_LIMIT`, default 50) returns a friendly "limit reached" message instead of letting requests through unbounded.
+1. **Provider-level hard spending cap.** Set a hard monthly limit on the API key itself in the [Anthropic console](https://console.anthropic.com/). This is the real safety net, it holds even if the app-level logic below has a bug.
+2. **App-level limits.** `max_tokens` is capped on every Claude request, and a daily request counter (`DAILY_REQUEST_LIMIT`, default 50) returns a friendly "limit reached" message instead of letting requests through unbounded.
 
 
 ## Limitations and what's next
@@ -112,11 +112,11 @@ This opens the app at `http://localhost:1234`, with `/api/*` proxied to the Expr
 npm test
 ```
 
-The test suite mocks both the embedding model and the Claude client, so it runs fully offline — no model download, no API key, no cost — while still exercising the real chunking, retrieval, and rate-limiting logic.
+The test suite mocks both the embedding model and the Claude client, so it runs fully offline (no model download, no API key, no cost) while still exercising the real chunking, retrieval, and rate-limiting logic.
 
 ## Deployment
 
-Run `npm run build` to generate `dist/`, then start the server with `npm run server` — Express serves the built frontend and the API from the same origin. Set `ANTHROPIC_API_KEY` (and optionally `DAILY_REQUEST_LIMIT`) as environment variables on whatever platform hosts it. Needs a persistent Node process (not a serverless function) since documents are held in memory between requests.
+Run `npm run build` to generate `dist/`, then start the server with `npm run server`. Express serves the built frontend and the API from the same origin. Set `ANTHROPIC_API_KEY` (and optionally `DAILY_REQUEST_LIMIT`) as environment variables on whatever platform hosts it. Needs a persistent Node process (not a serverless function) since documents are held in memory between requests.
 
 ## Project structure
 
